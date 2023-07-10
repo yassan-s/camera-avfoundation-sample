@@ -2,13 +2,11 @@
 //  ViewController.swift
 //  camera-avfoundation-sample
 //
-//  参考サイト
-//  
 
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AVAudioPlayerDelegate {
 
     // デバイスからの入力と出力を管理するオブジェクトの作成
     var captureSession = AVCaptureSession()
@@ -29,10 +27,11 @@ class ViewController: UIViewController {
     
     // シャッターボタン
     @IBOutlet weak var cameraButton: UIButton!
-    
 
-    /*
-     画面読み込み
+
+
+    /**
+     初期画面表示
      */
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +42,7 @@ class ViewController: UIViewController {
         setupPreviewLayer()
         captureSession.startRunning()
         styleCaptureButton()
+
     }
     
     /**
@@ -61,10 +61,12 @@ class ViewController: UIViewController {
 }
 
 
-//MARK: AVCapturePhotoCaptureDelegateデリゲートメソッド
+/**
+画像がキャプチャされる直前に呼び出されるデリゲート
+ */
 extension ViewController: AVCapturePhotoCaptureDelegate{
     
-    /*
+    /**
      画像の保存機能。
      */
     // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
@@ -76,13 +78,23 @@ extension ViewController: AVCapturePhotoCaptureDelegate{
             UIImageWriteToSavedPhotosAlbum(uiImage!, nil,nil,nil)
         }
     }
+
+    /**
+    シャッターサウンドの無効化。
+    */
+   func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+       // シャッターサウンドの無効化
+       AudioServicesDisposeSystemSoundID(1108)
+   }
 }
 
 
-//MARK: カメラ設定メソッド
-extension ViewController{
+/*
+初期画面表示前にカメラの設定を行う拡張メソッド
+ */
+extension ViewController {
     
-    /*
+    /**
      カメラの画質の設定
      */
     func setupCaptureSession() {
@@ -90,13 +102,13 @@ extension ViewController{
         captureSession.sessionPreset = AVCaptureSession.Preset.photo
     }
     
-    /*
+    /**
      デバイスの設定を行いセッションを取得。
-     
+
      deviceTypes: カメラデバイスの種類
      mediaType: 取得するメディアの種類
      position: FaceTimeカメラとiSightカメラ
-     
+
      builtInWideAngleCamera: カメラの種類[広角カメラ]
      video: メディアの種類に描画
      unspecified: FaceTimeカメラとiSight(背面)カメラのどちらも設定
@@ -168,10 +180,9 @@ extension ViewController{
         self.view.layer.insertSublayer(self.cameraPreviewLayer!, at: 0)
     }
 
-    /*
-     ボタンのデザインを作成
+    /**
+     ボタンのデザイン(スタイル)を作成
      */
-    // ボタンのスタイルを設定
     func styleCaptureButton() {
         cameraButton.layer.borderColor = UIColor.white.cgColor
         cameraButton.layer.borderWidth = 5
